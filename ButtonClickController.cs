@@ -1,3 +1,4 @@
+//简易思考动画的触发和平滑过渡
 using UnityEngine;
 
 public class ButtonClickController : MonoBehaviour
