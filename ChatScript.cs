@@ -26,7 +26,8 @@ public class ChatScript : MonoBehaviour
     //Vits语音
     [SerializeField]private VITS_Speech m_VITS_Player;
     [SerializeField]private GameObject m_ChatAPIPanel;
-    
+    public DancingControl dancingControl; // 引用DancingControl脚本
+
     //获取API
     public string m_OpenAI_Key="";
     public void OpenAPIPanel()
@@ -52,22 +53,38 @@ public class ChatScript : MonoBehaviour
     }
    
    //发送信息
-    public void SendData()
+     public void SendData()
     {
         if(m_InputWord.text.Equals(""))
             return;
-
+        // 获取输入内容
+        string inputText = m_InputWord.text; 
+        // 检查输入文本是否包含触发舞蹈动画的关键字
+        if (inputText.Contains("跳支舞"))
+        {
+            // 如果包含触发舞蹈动画的关键字，播放特定的舞蹈动画
+            dancingControl.PlayDanceAnimation();
+            
+        }
+        else if (inputText.Contains("停止跳舞"))
+        {
+            // 如果包含停止跳舞的关键字，停止跳舞动画和特定音乐
+            dancingControl.StopDancing();
+        }
         //记录聊天
         m_ChatHistory.Add(m_InputWord.text);
 
+        
+       
         string _msg=m_PostDataSetting.prompt+m_lan+" "+m_InputWord.text;
         //发送数据
         StartCoroutine (GetPostData (_msg,CallBack));
         m_InputWord.text="";
         m_TextBack.text="...";
-
         
+
     }
+    
     // //回车发送消息
     // [SerializeField]private Button m_button;
     // public void BackspaceSendData()
@@ -178,6 +195,7 @@ public class ChatScript : MonoBehaviour
 		yield return request.SendWebRequest ();
 
 		if (request.responseCode == 200) {
+            UnityEngine.Debug.Log("success");
 			string _msg = request.downloadHandler.text;
 			GetOpenAI.TextCallback _textback = JsonUtility.FromJson<GetOpenAI.TextCallback> (_msg);
 			if (_textback!=null && _textback.choices.Count > 0) {
@@ -195,7 +213,7 @@ public class ChatScript : MonoBehaviour
 
     #region 文字逐个显示
     //逐字显示的时间间隔
-    [SerializeField]private float m_WordWaitTime=0.2f;
+    [SerializeField]private float m_WordWaitTime=0.3f;
     //是否显示完成
     [SerializeField]private bool m_WriteState=false;
     private IEnumerator SetTextPerWord(string _msg){
